@@ -1,7 +1,11 @@
+use mongodb::options::Collation;
+use mongodb::Collection;
 use mongodb::{options::ClientOptions, options::ResolverConfig, Client, Database};
 use std::env;
 use std::{convert::Infallible, error::Error};
 use warp::Filter;
+
+use crate::models;
 
 #[derive(Clone, Debug)]
 pub struct DB {
@@ -25,5 +29,9 @@ impl DB {
 
     pub fn with_db(db: DB) -> impl Filter<Extract = (DB,), Error = Infallible> + Clone {
         warp::any().map(move || db.clone())
+    }
+
+    pub fn get_collection<T>(&self, coll_name: &str) -> Collection<T> {
+        self.mdb.collection(coll_name)
     }
 }
