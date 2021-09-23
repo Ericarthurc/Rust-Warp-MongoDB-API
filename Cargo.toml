@@ -1,0 +1,15 @@
+[package]
+name = "rustmarky"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mongodb = "2"
+tokio = { version = "1", features = ["full"] }
+warp = "0.3.1"
+serde = { version = "1.0", features = ["derive"] }
+bson = { version = "2.0.0", features = ["chrono-0_4"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenv = "0.15.0"
