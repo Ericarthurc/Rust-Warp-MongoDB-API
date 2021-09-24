@@ -1,10 +1,11 @@
-use std::{fmt::Error, str::FromStr};
+use std::{fmt::Error, ptr::NonNull, str::FromStr};
 
 use crate::database;
 use bson::{doc, oid::ObjectId};
 use chrono::{DateTime, Utc};
 use mongodb::Cursor;
 use serde::{Deserialize, Serialize};
+use warp::Rejection;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Item {
@@ -21,14 +22,24 @@ impl Item {
     //     let mut result: Vec<Item> = Vec::new();
     // }
 
-    pub async fn get_item(id: String, db: database::DB) -> Result<Item, mongodb::error::Error> {
-        let oid = bson::oid::ObjectId::from_str(&id).unwrap();
-        let item = db
+    pub async fn get_item(id: String, db: database::DB) -> Result<Item, Rejection> {
+        let oid = bson::oid::ObjectId::from_str(&id);
+        let oid = match oid {
+            Ok(oid) => oid,
+            Err(_) => return Err(warp::reject::not_found()),
+        };
+
+        let find_results = db
             .get_collection::<Item>("items")
             .find_one(doc! {"_id": oid}, None)
-            .await?
-            .unwrap();
+            .await;
 
-        Ok(item)
+        match find_results {
+            Ok(results) => match results {
+                Some(item) => Ok(item),
+                None => Err(warp::reject::not_found()),
+            },
+            Err(_error) => Err(warp::reject::not_found()),
+        }
     }
 }

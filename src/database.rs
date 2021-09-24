@@ -5,8 +5,6 @@ use std::env;
 use std::{convert::Infallible, error::Error};
 use warp::Filter;
 
-use crate::models;
-
 #[derive(Clone, Debug)]
 pub struct DB {
     pub mdb: Database,

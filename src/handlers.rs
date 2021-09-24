@@ -19,7 +19,7 @@ use warp::{Rejection, Reply};
 // }
 
 pub async fn get_items_handler(db: DB) -> Result<impl Reply, Rejection> {
-    let items_coll = db.mdb.collection::<models::Item>("items");
+    let items_coll = database::DB::get_collection::<models::Item>(&db, "item");
 
     let items = items_coll.find(None, None).await;
     match items {
@@ -30,8 +30,12 @@ pub async fn get_items_handler(db: DB) -> Result<impl Reply, Rejection> {
 }
 
 pub async fn get_item_handler(id: String, db: DB) -> Result<impl Reply, Rejection> {
-    let item = models::Item::get_item(id, db).await.unwrap();
+    let item = models::Item::get_item(id, db).await?;
     Ok(json(&item))
+    // match item {
+    //     Ok(item) => Ok(json(&item)),
+    //     Err(_) => Err(warp::reject::not_found()),
+    // }
 }
 
 // pub async fn create_item() -> Result<impl Reply, Rejection> {}
